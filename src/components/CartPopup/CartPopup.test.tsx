@@ -13,7 +13,6 @@ beforeAll(() => {
     disconnect() {}
   };
 });
-
 // Начальные данные корзины
 const initialItems = [
   {

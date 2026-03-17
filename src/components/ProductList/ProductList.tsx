@@ -1,28 +1,19 @@
-import React, { useEffect, useState } from 'react';
-import { SimpleGrid, Loader, Center } from '@mantine/core';
+import React, { useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { SimpleGrid, Loader, Center, Text } from '@mantine/core';
 import ProductCard from '../ProductCard/ProductCard';
-import type { Product } from '../../types/product';
-
-const API_URL = 'https://res.cloudinary.com/sivadass/raw/upload/v1535817394/json/products.json';
+import  { fetchProducts } from '../../store/productsSlice';
+import type { RootState, AppDispatch } from '../../store/store';
 
 const ProductList: React.FC = () => {
-  const [products, setProducts] = useState<Product[]>([]);
-  const [loading, setLoading] = useState(true);
+  const dispatch = useDispatch<AppDispatch>();
+  const { items, loading, error } = useSelector((state: RootState) => state.products);
 
   useEffect(() => {
-    fetch(API_URL)
-      .then(res => res.json())
-      .then(data => {
-        setProducts(data);
-        setLoading(false);
-      })
-      .catch(err => {
-        console.error('ошибка fetch', err);
-        setLoading(false);
-      });
-  }, []);
+    dispatch(fetchProducts());
+  }, [dispatch]);
 
-  if (loading) {
+  if (loading === 'pending') {
     return (
       <Center style={{ minHeight: '400px' }}>
         <Loader size="lg" />
@@ -30,9 +21,17 @@ const ProductList: React.FC = () => {
     );
   }
 
+  if (loading === 'failed') {
+    return (
+      <Center style={{ minHeight: '400px' }}>
+        <Text c="red">Ошибка загрузки: {error}</Text>
+      </Center>
+    );
+  }
+
   return (
     <SimpleGrid cols={{ base: 1, sm: 2, md: 3, lg: 4 }} spacing="lg" p="md">
-      {products.map(product => (
+      {items.map(product => (
         <ProductCard key={product.id} product={product} />
       ))}
     </SimpleGrid>

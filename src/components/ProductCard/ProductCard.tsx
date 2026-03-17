@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import { Card, Image, Text, Group, Button, ActionIcon } from '@mantine/core';
 import { IconPlus, IconMinus, IconShoppingCart } from '@tabler/icons-react';
 import type { Product } from '../../types/product';
-import { useCart } from '../../context/CartContext';
+import { useAppDispatch } from '../../store/hooks';
+import { addItem } from '../../store/cartSlice'; 
 import classes from './ProductCard.module.css';
 
 interface ProductCardProps {
@@ -10,17 +11,13 @@ interface ProductCardProps {
 }
 
 const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
-  const { addItem } = useCart();
+  const dispatch = useAppDispatch();
   const [quantity, setQuantity] = useState(1);
 
   const handleAddToCart = () => {
-    addItem(product, quantity);
+    dispatch(addItem({ product, quantity }));
     setQuantity(1);
   };
-
-  // Helper to split product name and unit (if present)
-  // Assumes product.name ends with a unit like "kg", "g", "lb", etc.
-  // You can adjust this logic based on your actual data structure
   const renderProductName = () => {
     const nameParts = product.name.trim().split(/(\d+)\s*(kg|g|lb|oz)/i);
     if (nameParts.length > 1) {
